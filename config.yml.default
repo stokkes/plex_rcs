@@ -1,0 +1,28 @@
+# config.yml - for plex rclone cache scaner (plex_rcs)
+#
+# Options are pretty straight forward. This program
+# MUST run on the same host as your Plex server and yhour
+# Plex server MUST run in a docker container.
+#
+# host: this is the hostname or IP of your plex server
+#       (should not change from localhost)
+#
+# port: port that your plex server runs on (default 32400)
+#
+# token: Your Plex-X-Token master token
+#
+# docker_media_root: this is the folder (in your plex docker
+#                    container that contains all media sub-folders)
+#
+# More on docker_media_root:
+#
+# When rclone detects a new file, it will show up in the log as the sub-folder
+# of the rclone cache remote. Example would be "tvshows/Grimm/Season 1/". This
+# setting maps that to where the script can find that folder in your docker container
+# example: "/media/tvshows/Grimm/Season 1/". You may need to play around with this.
+
+plex_rcs:
+   host: localhost
+   port: 32400
+   token: TOKEN
+   docker_media_root: /media
