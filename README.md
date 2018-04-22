@@ -69,7 +69,14 @@ You can test `plex_rcs` if you use the built in /var/log/syslog monitoring by ex
 
 `logger "Apr 21 07:20:51 plex rclone[21009]: tvshows/Survivor/Season 20/Survivor - S20E01 - Episode.mkv: received cache expiry notification"`
 
-If you're monitoring the `plex_rcs` console, you should see activity.
+If you're monitoring the `plex_rcs` console, you should see activity:
+
+```
+Starting to monitor /var/log/syslog with pattern for rclone                                                                
+Match found (tvshows/Survivor/Season 20/Survivor - S20E01 - Episode.mkv)!                                                  
+Processing section 1, folder: /media/tvshows/Survivor/Season 20                                                              
+GUI: Scanning Survivor/Season 20
+```
 
 ## TODO
 

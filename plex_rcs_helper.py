@@ -48,7 +48,7 @@ def scan():
 	for p in paths:
 		if p in directory:
 			section_id = paths[p]
-			print("Processing section %s, file: %s" % (section_id, directory))
+			print("Processing section %s, folder: %s" % (section_id, directory))
 			call(["/usr/bin/docker", "exec", "-i", "plex", "/usr/lib/plexmediaserver/Plex Media Scanner", "--scan", "--refresh", "--section", section_id, "--directory", directory])
 		
 
