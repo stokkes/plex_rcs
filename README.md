@@ -82,4 +82,4 @@ GUI: Scanning Survivor/Season 20
 
 * Support Plexdrive (analyis required)
 * Smarter logic to detect rclone cache root/docker media root
-*  
+* Logging to file 
