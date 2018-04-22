@@ -9,7 +9,7 @@
 #
 # port: port that your plex server runs on (default 32400)
 #
-# token: Your Plex-X-Token master token
+# token: Your X-Plex-Token master token
 #
 # docker_media_root: this is the folder (in your plex docker
 #                    container that contains all media sub-folders)
