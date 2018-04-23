@@ -2,6 +2,7 @@
 #
 # Helper script
 # 
+import os
 import sys
 import yaml
 import argparse
@@ -10,22 +11,17 @@ from subprocess import call
 
 
 def config():
-	global plex, plex_url, plex_token, root_folder
+	global plex, cfg
 
 	with open("config.yml", 'r') as ymlfile:
-		cfg = yaml.load(ymlfile)
+		cfg = yaml.load(ymlfile)['plex_rcs']
 
-
-	plex_url = "http://%s:%s" % (cfg['plex_rcs']['host'], cfg['plex_rcs']['port'])
-	plex_token = cfg['plex_rcs']['token']
-	root_folder = cfg['plex_rcs']['docker_media_root']
-	
 	try:
-		plex = PlexServer(plex_url, plex_token)
+		plex = PlexServer("http://%s:%s" % (cfg['host'], cfg['port']), cfg['token'])
 		if args.test:
-			print("Config OK. Successfully connected to Plex server on %s" % plex_url)
+			print("Config OK. Successfully connected to Plex server on %s" % (cfg['host'], cfg['port']), cfg['token'])
 	except:
-		sys.exit("Failed to connect to plex server %s." % plex_url)	
+		sys.exit("Failed to connect to plex server %s." % (cfg['host'], cfg['port']), cfg['token'])
 
 def build_sections():
 	global paths
@@ -36,12 +32,11 @@ def build_sections():
 			paths.update({l:section.key})
 
 def scan():
-	global root_folder, directory
 	
-	if root_folder in args.directory:
+	if cfg['media_root'] in args.directory:
 		directory = args.directory
 	else:
-		directory = "%s/%s" % (root_folder, args.directory)
+		directory = "%s/%s" % (cfg['media_root'], args.directory)
 	
 	# Match the new file with a path in our library
 	# and trigger a scan via a `docker exec` call
@@ -49,8 +44,19 @@ def scan():
 		if p in directory:
 			section_id = paths[p]
 			print("Processing section %s, folder: %s" % (section_id, directory))
-			call(["/usr/bin/docker", "exec", "-i", "plex", "/usr/lib/plexmediaserver/Plex Media Scanner", "--scan", "--refresh", "--section", section_id, "--directory", directory])
-		
+			
+			if cfg['docker']:
+				try:
+					call(["/usr/bin/docker", "exec", "-i", cfg['container'], "/usr/lib/plexmediaserver/Plex Media Scanner", "--scan", "--refresh", "--section", section_id, "--directory", directory])
+				except:
+					print("Error executing docker command")
+			else:
+				os.environ['LD_LIBRARY_PATH'] = cfg['env']['LD_LIBRARY_PATH']
+				os.environ['PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR'] = cfg['env']['PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR']
+				try:
+					call(["%s/Plex Media Scanner" % cfg['env']['LD_LIBRARY_PATH'], "--scan", "--refresh", "--section", section_id, "--directory", directory], env=os.environ)
+				except:
+					print("Error executing %s/Plex Media Scanner" % cfg['env']['LD_LIBRARY_PATH'])
 
 if __name__ == "__main__":
 
