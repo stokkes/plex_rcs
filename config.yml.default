@@ -6,23 +6,27 @@
 #
 # host: this is the hostname or IP of your plex server
 #       (should not change from localhost)
-#
 # port: port that your plex server runs on (default 32400)
+# token: Your Plex-X-Token master token
+# docker: true/false whether Plex runs in a docker container
+# container: Name of your plex container (default: plex)
+# media_root: this is the root folder that contains your media
 #
-# token: Your X-Plex-Token master token
-#
-# docker_media_root: this is the folder (in your plex docker
-#                    container that contains all media sub-folders)
-#
-# More on docker_media_root:
+# More on media_root:
 #
 # When rclone detects a new file, it will show up in the log as the sub-folder
 # of the rclone cache remote. Example would be "tvshows/Grimm/Season 1/". This
-# setting maps that to where the script can find that folder in your docker container
+# setting maps that to where the script can find that folder in your docker container or
+# on your system (if not using docker)
 # example: "/media/tvshows/Grimm/Season 1/". You may need to play around with this.
 
 plex_rcs:
-   host: localhost
-   port: 32400
-   token: TOKEN
-   docker_media_root: /media
+  host: plex
+  port: 32400
+  token: TOKEN
+  docker: true
+  container: plex
+  media_root: /media
+  env:
+    LD_LIBRARY_PATH: "/usr/lib/plexmediaserver"
+    PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR: "/var/lib/plexmediaserver"
