@@ -21,7 +21,7 @@
 # example: "/media/tvshows/Grimm/Season 1/". You may need to play around with this.
 
 plex_rcs:
-  host: plex
+  host: localhost
   port: 32400
   token: TOKEN
   docker: true
