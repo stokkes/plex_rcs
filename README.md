@@ -1,12 +1,16 @@
 # Plex rclone cache scanner (plex_rcs)
 
-A small little program that will monitor a an rclone log file (using `tail`) looking for notices of file cache expiration. Upon receiving a notice, it will evoke the its helper script `plex_rcs_helper.py` with the updated folder as an argument which will trigger a local Plex scan of that folder.
+A small little program that will monitor an rclone log file (using `tail`) waiting for notices of file cache expiration. Upon receiving a notice, it will evoke its helper script `plex_rcs_helper.py` with the updated folder as an argument and trigger a local Plex scan of that folder.
 
-This is useful for people who run Plex Media Server on a different server than where media is downloaded to.
+This is useful for people who run Plex Media Server on a different server than Sonarr/Radarr/etc. It's possible to have media appear in your Plex server within 5-10 minutes of downloading using this program, along with an rclone `--cache-tmp-wait-time 5m`.
+
+## Requirements
+
+1. Python 3+
+2. Your rclone cache mount must include `--log-level INFO`
+3. Your rclone cache mount must include `--syslog` **OR** `--log-file /path/to/file.log`
 
 ## Installation
-
-plex_rcs requires Python 3+
 
 1. Clone this repo: `git clone https://github.com/stokkes/plex_rcs.git`
 2. Install the requirements: `pip3 install -r requirements.txt`
@@ -14,7 +18,7 @@ plex_rcs requires Python 3+
 ## Configuration
 
 1. Copy the `config.yml.default` to `config.yml`
-2. Edit `config.yml` to include your [X-Plex-Token](https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/), set your `docker_media_root` setting and any other settings. _See below for more information on the `docker_media_root` setting_.
+2. Edit `config.yml` to include your [X-Plex-Token](https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/), set your `media_root` setting and any other settings. _See below for more information on the `media_root` setting_.
 
 ## Running plex_rcs
 
@@ -38,20 +42,21 @@ _**Coming soon**_
 4. Enable the service [auto-starts on boot]: `sudo systemctl enable plex_rcs`
 5. Start the service: `sudo systemctl start plex_rcs`
 
-## More info on `docker_media_root` configuration setting
+## More info on `media_root` configuration setting
 
 This setting may be tricky to figure out at the first glance, but it is critical to get `plex_rcs` working properly. 
 
-The value of this setting is the folder **inside your docker container** that contains all your media. Typically, this would be in `/media`
+The value of this setting is the folder **inside your docker container** (if using docker) that contains all your media. Typically, this would be in `/media`. If not using docker, this will likely be the path to your rclone `cache` remote mount, i.e.: `/mnt/media`
 
 However, at this time there is 1 requirement:
 
-The root of your rclone `cache` remote (i.e.: `gdrive-cache:`) **must** contain all your media in sub-folders, so that the remote and the folder that is mounted inside your docker container both contain the same sub-folders.
+The root of your rclone `cache` remote (i.e.: `gdrive-cache:`) **must** contain all your media in sub-folders, so that the remote and the folder that is mounted inside your docker container/on your system both contain the same sub-folders.
 
 **How to test:**
 
 1. `rclone lsd cache:` and
 2. `docker exec -ti plex ls /media` (where `/media` is where your media is located inside your docker container)
+3. If not using docker, `ls /path/to/rclone/cache/mount`
 
 If the result of these two folders yield the same sub-folders, then `plex_rcs` will work correctly.
 
