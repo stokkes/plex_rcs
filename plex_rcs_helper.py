@@ -17,11 +17,11 @@ def config():
 		cfg = yaml.load(ymlfile)['plex_rcs']
 
 	try:
-		plex = PlexServer("http://%s:%s" % (cfg['host'], cfg['port']), cfg['token'])
+		plex = PlexServer("http://{0}:{1}".format(cfg['host'], cfg['port']), cfg['token'])
 		if args.test:
-			print("Config OK. Successfully connected to Plex server on %s" % (cfg['host'], cfg['port']), cfg['token'])
+			print("Config OK. Successfully connected to Plex server on {0}:{1}".format(cfg['host'], cfg['port']))
 	except:
-		sys.exit("Failed to connect to plex server %s." % (cfg['host'], cfg['port']), cfg['token'])
+		sys.exit("Failed to connect to plex server {0}:{1}.".format(cfg['host'], cfg['port']))
 
 def build_sections():
 	global paths
@@ -36,14 +36,14 @@ def scan():
 	if cfg['media_root'] in args.directory:
 		directory = args.directory
 	else:
-		directory = "%s/%s" % (cfg['media_root'], args.directory)
+		directory = "{0}/{1}".format(cfg['media_root'], args.directory)
 	
 	# Match the new file with a path in our library
 	# and trigger a scan via a `docker exec` call
 	for p in paths:
 		if p in directory:
 			section_id = paths[p]
-			print("Processing section %s, folder: %s" % (section_id, directory))
+			print("Processing section {0}, folder: {1}".format(section_id, directory))
 			
 			if cfg['docker']:
 				try:
@@ -54,9 +54,9 @@ def scan():
 				os.environ['LD_LIBRARY_PATH'] = cfg['env']['LD_LIBRARY_PATH']
 				os.environ['PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR'] = cfg['env']['PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR']
 				try:
-					call(["%s/Plex Media Scanner" % cfg['env']['LD_LIBRARY_PATH'], "--scan", "--refresh", "--section", section_id, "--directory", directory], env=os.environ)
+					call(["{0}/Plex Media Scanner".format(cfg['env']['LD_LIBRARY_PATH']), "--scan", "--refresh", "--section", section_id, "--directory", directory], env=os.environ)
 				except:
-					print("Error executing %s/Plex Media Scanner" % cfg['env']['LD_LIBRARY_PATH'])
+					print("Error executing {0}/Plex Media Scanner".format(cfg['env']['LD_LIBRARY_PATH']))
 
 if __name__ == "__main__":
 
