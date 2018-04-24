@@ -33,10 +33,10 @@ def build_sections():
 
 def scan():
 	
-	if cfg['media_root'] in args.directory:
+	if cfg['media_root'].rstrip("/") in args.directory:
 		directory = args.directory
 	else:
-		directory = "{0}/{1}".format(cfg['media_root'], args.directory)
+		directory = "{0}/{1}".format(cfg['media_root'].rstrip("/"), args.directory)
 	
 	# Match the new file with a path in our library
 	# and trigger a scan via a `docker exec` call
