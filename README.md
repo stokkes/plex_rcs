@@ -28,7 +28,7 @@ There are two ways I recommend you run this. Using `screen` or using the include
 
 Execute the program using screen:
 
-`/usr/bin/screen -dmS plexrcs /path/to/plex_rcs/plex_rcs.sh`
+`/usr/bin/screen -dmS plexrcs /path/to/plex_rcs/plex_rcs.py`
 
 To view the console: `screen -r plexrcs`
 
@@ -36,7 +36,7 @@ To view the console: `screen -r plexrcs`
 
 _**Coming soon**_
 
-1. Edit the included `plex_rcs.service` file and change the path to where the `plex_rcs.sh` file is located
+1. Edit the included `plex_rcs.service` file and change the path to where the `plex_rcs.py` file is located
 2. Copy the systemd file to `/etc/systemd/service`: `sudo cp plex_rcs.service /etc/systemd/service`
 3. Reload systemd: `sudo systemctl daemon-reload`
 4. Enable the service [auto-starts on boot]: `sudo systemctl enable plex_rcs`
@@ -77,9 +77,9 @@ You can test `plex_rcs` if you use the built in /var/log/syslog monitoring by ex
 If you're monitoring the `plex_rcs` console, you should see activity:
 
 ```
-Starting to monitor /var/log/syslog with pattern for rclone                                                                
-Match found (tvshows/Survivor/Season 20/Survivor - S20E01 - Episode.mkv)!                                                  
-Processing section 1, folder: /media/tvshows/Survivor/Season 20                                                              
+Starting to monitor /var/log/syslog with pattern for rclone                                                             
+Match found: tvshows/Survivor/Season 20/Survivor - S20E01 - Episode.mkv
+Processing section 1, folder: /media/tvshows/Survivor/Season 20
 GUI: Scanning Survivor/Season 20
 ```
 

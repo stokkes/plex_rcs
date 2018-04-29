@@ -1,19 +1,21 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 #
 # Helper script
 # 
 import os
 import sys
-import yaml
+import re
 import argparse
-from plexapi.myplex import PlexServer
+import yaml
+from datetime import datetime
 from subprocess import call
+from plexapi.myplex import PlexServer
+from sh import tail
 
-
-def config():
+def config(file):
 	global plex, cfg
 
-	with open("config.yml", 'r') as ymlfile:
+	with open(file, 'r') as ymlfile:
 		cfg = yaml.load(ymlfile)['plex_rcs']
 
 	try:
@@ -31,17 +33,20 @@ def build_sections():
 		for l in plex.library.section(section.title).locations:
 			paths.update({l:section.key})
 
-def scan():
+def scan(folder):
 	
-	if cfg['media_root'].rstrip("/") in args.directory:
+	if cfg['media_root'].rstrip("/") in folder:
 		directory = args.directory
 	else:
-		directory = "{0}/{1}".format(cfg['media_root'].rstrip("/"), args.directory)
+		directory = "{0}/{1}".format(cfg['media_root'].rstrip("/"), folder)
 	
 	# Match the new file with a path in our library
 	# and trigger a scan via a `docker exec` call
+	found = False
+
 	for p in paths:
 		if p in directory:
+			found = True
 			section_id = paths[p]
 			print("Processing section {0}, folder: {1}".format(section_id, directory))
 			
@@ -58,24 +63,72 @@ def scan():
 				except:
 					print("Error executing {0}/Plex Media Scanner".format(cfg['env']['LD_LIBRARY_PATH']))
 
+	if not found:
+		print("Scanned directory '{0}' not found in Plex library".format(args.directory))
+
+def tailf(logfile):
+	print("Starting to monitor {0} with pattern for rclone cache".format(logfile))
+	for line in tail("-Fn0", logfile, _iter=True):
+		if re.match(r".*(mkv:|mp4:|mpeg4:|avi:) received cache expiry notification", line):
+			f = re.sub(r"^(.*rclone\[[0-9]+\]: )([^:]*)(:.*)$",r'\2', line)
+			print("Detected new file: {0}".format(f))
+			scan(os.path.dirname(f))
+	
+
 if __name__ == "__main__":
 
 	parser = argparse.ArgumentParser(prog="plex_rcs_helper.py", description="Small helper script to update a Plex library section by scanning a specific directory.")
 	parser.add_argument("-d", "--directory", dest="directory", metavar="directory", help="Directory to scan")
+	parser.add_argument("-l", "--logfile", dest="logfile", metavar="logfile", help="Log file to monitor (default /var/log/syslog)")
+	parser.add_argument("-c", "--config", dest="config", metavar="config", help="config file")
 	parser.add_argument("--test", action='store_true', help="Test config")
 	args = parser.parse_args()
 	
 	# Initialize our paths dict
 	paths = {}
 
+	# Configuration file
+	if args.config:
+		cf = args.config
+		if not os.path.isfile(cf):
+			print("Configuration file '{0}' does not exist.".format(args.config))
+			sys.exit(1)
+	else:
+		cf = "{0}/config.yml".format(os.path.dirname(os.path.realpath(__file__)))
+		if not os.path.isfile(cf):
+			print("Configuration file '{0}' does not exist.".format(os.path.dirname(os.path.realpath(__file__))))
+			sys.exit(1)
+
+	# Logfile
+	if args.logfile:
+		lf = args.logfile
+		if not os.path.isfile(cf):
+			print("Log file '{0}' does not exist.".format(args.logfile))
+			sys.exit(1)
+	else:
+		lf = "/var/log/syslog"
+		if not os.path.isfile(cf):
+			print("Log file '/var/log/syslog' does not exist.".format(args.config))
+			sys.exit(1)
+	
+	# Main
 	if args.test:
-		config()
+		config(cf)
 	elif args.directory:		
 		# Build config
-		config()
+		config(cf)
 		
 		# Build sections
 		build_sections()
 		
 		# Scan directory
-		scan()		
+		scan(args.directory)
+	else:
+		# Build config
+		config(cf)
+		
+		# Build sections
+		build_sections()
+		
+		# Scan directory
+		tailf(lf)
