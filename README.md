@@ -1,6 +1,6 @@
 # Plex rclone cache scanner (plex_rcs)
 
-A small little program that will monitor an rclone log file (using `tail`) waiting for notices of file cache expiration. Upon receiving a notice, it will evoke its helper script `plex_rcs_helper.py` with the updated folder as an argument and trigger a local Plex scan of that folder.
+A small little program that will monitor an rclone log file waiting for notices of file cache expiration. Upon receiving a notice, a local Plex scan of that folder will be triggered and new media will appear in Plex almost instantly.
 
 This is useful for people who run Plex Media Server on a different server than Sonarr/Radarr/etc. It's possible to have media appear in your Plex server within 5-10 minutes of downloading using this program, along with an rclone `--cache-tmp-wait-time 5m`.
 
