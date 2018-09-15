@@ -1,12 +1,13 @@
 #!/usr/bin/python3
 #
 # Helper script
-# 
+#
 import os
 import sys
 import re
 import argparse
 import yaml
+import time
 from datetime import datetime
 from subprocess import call
 from plexapi.myplex import PlexServer
@@ -34,12 +35,12 @@ def build_sections():
 			paths.update({l:section.key})
 
 def scan(folder):
-	
+
 	if cfg['media_root'].rstrip("/") in folder:
 		directory = args.directory
 	else:
 		directory = "{0}/{1}".format(cfg['media_root'].rstrip("/"), folder)
-	
+
 	# Match the new file with a path in our library
 	# and trigger a scan via a `docker exec` call
 	found = False
@@ -49,7 +50,7 @@ def scan(folder):
 			found = True
 			section_id = paths[p]
 			print("Processing section {0}, folder: {1}".format(section_id, directory))
-			
+
 			if cfg['docker']:
 				try:
 					call(["/usr/bin/docker", "exec", "-i", cfg['container'], "/usr/lib/plexmediaserver/Plex Media Scanner", "--scan", "--refresh", "--section", section_id, "--directory", directory])
@@ -67,13 +68,30 @@ def scan(folder):
 		print("Scanned directory '{0}' not found in Plex library".format(args.directory))
 
 def tailf(logfile):
-	print("Starting to monitor {0} with pattern for rclone cache".format(logfile))
-	for line in tail("-Fn0", logfile, _iter=True):
-		if re.match(r".*(mkv:|mp4:|mpeg4:|avi:) received cache expiry notification", line):
-			f = re.sub(r"^(.*rclone\[[0-9]+\]: )([^:]*)(:.*)$",r'\2', line)
-			print("Detected new file: {0}".format(f))
-			scan(os.path.dirname(f))
-	
+	print("Starting to monitor {0} with pattern for rclone {1}".format(logfile, cfg['backend']))
+
+	# Validate which backend we're using
+	if cfg['backend'] == 'cache':
+		# Use cache backend
+		for line in tail("-Fn0", logfile, _iter=True):
+			if re.match(r".*(mkv:|mp4:|mpeg4:|avi:) received cache expiry notification", line):
+				f = re.sub(r"^(.*rclone\[[0-9]+\]: )([^:]*)(:.*)$",r'\2', line)
+				print("Detected new file: {0}".format(f))
+				scan(os.path.dirname(f))
+
+	elif cfg['backend'] == 'vfs':
+		# Use vfs backend
+		timePrev = ''
+		for line in tail("-Fn0", logfile, _iter=True):
+			if re.match(r".*: forgetting directory cache", line):
+				f = re.sub(r"^.*\s:\s(.*):\sforgetting directory cache",r'\1', line)
+				timeCurr = re.sub(r"^.*\s([0-9]+:[0-9]+:[0-9]+)\s.*\s:\s.*:\sforgetting directory cache",r'\1', line)
+
+				if timeCurr != timePrev:
+					print("Detected directory cache expiration: {0}".format(f))
+					scan(os.path.dirname(f))
+					timePrev = timeCurr
+
 
 if __name__ == "__main__":
 
@@ -83,7 +101,7 @@ if __name__ == "__main__":
 	parser.add_argument("-c", "--config", dest="config", metavar="config", help="config file")
 	parser.add_argument("--test", action='store_true', help="Test config")
 	args = parser.parse_args()
-	
+
 	# Initialize our paths dict
 	paths = {}
 
@@ -110,25 +128,25 @@ if __name__ == "__main__":
 		if not os.path.isfile(cf):
 			print("Log file '/var/log/syslog' does not exist.".format(args.config))
 			sys.exit(1)
-	
+
 	# Main
 	if args.test:
 		config(cf)
-	elif args.directory:		
+	elif args.directory:
 		# Build config
 		config(cf)
-		
+
 		# Build sections
 		build_sections()
-		
+
 		# Scan directory
 		scan(args.directory)
 	else:
 		# Build config
 		config(cf)
-		
+
 		# Build sections
 		build_sections()
-		
+
 		# Scan directory
 		tailf(lf)

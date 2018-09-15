@@ -8,6 +8,7 @@
 #       (should not change from localhost)
 # port: port that your plex server runs on (default 32400)
 # token: Your Plex-X-Token master token
+# backend: cache backend (either cache or vfs)
 # docker: true/false whether Plex runs in a docker container
 # container: Name of your plex container (default: plex)
 # media_root: this is the root folder that contains your media
@@ -24,6 +25,7 @@ plex_rcs:
   host: localhost
   port: 32400
   token: TOKEN
+  backend: vfs
   docker: true
   container: plex
   media_root: /media

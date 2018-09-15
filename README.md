@@ -13,7 +13,7 @@ This is useful for people who run Plex Media Server on a different server than S
 ## Installation
 
 1. Clone this repo: `git clone https://github.com/stokkes/plex_rcs.git`
-2. Install the requirements: `pip3 install -r requirements.txt`
+2. Install the requirements: `sudo pip3 install -r requirements.txt`
 
 ## Configuration
 
