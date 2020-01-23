@@ -1,26 +1,30 @@
-# config.yml - for plex rclone cache scaner (plex_rcs)
-#
-# Options are pretty straight forward. This program
-# MUST run on the same host as your Plex server and yhour
-# Plex server MUST run in a docker container.
-#
-# host: this is the hostname or IP of your plex server
-#       (should not change from localhost)
-# port: port that your plex server runs on (default 32400)
-# token: Your Plex-X-Token master token
-# backend: cache backend (either cache or vfs)
-# docker: true/false whether Plex runs in a docker container
-# container: Name of your plex container (default: plex)
-# media_root: this is the root folder that contains your media
-#
-# More on media_root:
-#
-# When rclone detects a new file, it will show up in the log as the sub-folder
-# of the rclone cache remote. Example would be "tvshows/Grimm/Season 1/". This
-# setting maps that to where the script can find that folder in your docker container or
-# on your system (if not using docker)
-# example: "/media/tvshows/Grimm/Season 1/". You may need to play around with this.
+## config.yml - for plex rclone cache scaner (plex_rcs)
 
+## Options are pretty straight forward. This program
+## MUST run on the same host as your Plex server and yhour
+## Plex server MUST run in a docker container.
+
+## host: this is the hostname or IP of your plex server
+##       (should not change from localhost)
+## port: port that your plex server runs on (default 32400)
+## token: Your Plex-X-Token master token
+## backend: cache backend (either cache or vfs)
+## docker: true/false whether Plex runs in a docker container
+## container: Name of your plex container (default: plex), ignored if docker: false
+
+## media_root: this is root location where you mounted your rclone mount (drive letter on windows)
+## For example if you mounted it to the g: drive letter like rclone mount gdrive:/ g:
+## then your media_root should be:
+## media_root: g:\
+
+## More on media_root:
+## When rclone detects a new file, it will show up in the log as the sub-folder
+## of the rclone cache remote. Example would be "tvshows/Grimm/Season 1/". This
+## setting maps that to where the script can find that folder in your docker container or
+## on your system (if not using docker)
+## example: "/media/tvshows/Grimm/Season 1/" (on windows: g:\media\tvshows\Grimm\Season 1/).
+
+# Linux Docker Config
 plex_rcs:
   host: localhost
   port: 32400
@@ -32,3 +36,22 @@ plex_rcs:
   env:
     LD_LIBRARY_PATH: "/usr/lib/plexmediaserver"
     PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR: "/var/lib/plexmediaserver"
+
+## Windows Config, comment out config above and uncomment this.
+# plex_rcs:
+#   host: localhost
+#   port: 32400
+#   token: TOKEN
+#   backend: vfs
+#   docker: false
+#   container: plex
+#   media_root: g:\
+#   log_file: c:\plex_rcs\rclone.log
+#   env:
+#     LD_LIBRARY_PATH: "%programfiles(x86)%\\Plex\\Plex Media Server"
+#     PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR: "%LOCALAPPDATA%\\Plex Media Server
+
+### Windows Paths must use `\\` in place of `\` in the path or it won't work properly
+### media_root is the drive letter where your rclone mount is mounted.
+### log_file is the same value that you set in your rclone mount i.e --log-file=c:\plex_rcs\rclone.log
+### If you moved your plex appdata folder, then change PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR to where you put it. i.e  PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR: "d:\Plex Media Server"
