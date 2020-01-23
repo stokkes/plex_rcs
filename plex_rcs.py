@@ -47,8 +47,6 @@ def scan(folder):
     #         directory))
     # else:
     directory = os.path.abspath("{0}/{1}".format(cfg['media_root'].rstrip("\\").rstrip("/"), folder))
-    print("directory: '{0}'".format(
-        directory))
 
     # Match the new file with a path in our library
     # and trigger a scan via a `docker exec` call
