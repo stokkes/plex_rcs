@@ -29,8 +29,7 @@ def config(file):
     except:
         sys.exit("Failed to connect to plex server {0}:{1}.".format(
             cfg['host'], cfg['port']))
-
-
+            
 def build_sections():
     global paths
 
@@ -69,14 +68,14 @@ def scan(folder):
                 except:
                     print("Error executing docker command")
             else:
-                os.environ['LD_LIBRARY_PATH'] = cfg['env']['LD_LIBRARY_PATH']
-                os.environ['PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR'] = cfg['env']['PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR']
+                os.environ['LD_LIBRARY_PATH'] = os.path.expandvars(cfg['env']['LD_LIBRARY_PATH'])
+                os.environ['PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR'] = os.path.expandvars(cfg['env']['PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR'])
                 try:
-                    call(["{0}/Plex Media Scanner".format(cfg['env']['LD_LIBRARY_PATH']), "--scan",
+                    call(["{0}/Plex Media Scanner".format(os.path.expandvars(cfg['env']['LD_LIBRARY_PATH'])), "--scan",
                           "--refresh", "--section", section_id, "--directory", directory], env=os.environ)
                 except:
                     print(
-                        "Error executing {0}/Plex Media Scanner".format(cfg['env']['LD_LIBRARY_PATH']))
+                        "Error executing {0}/Plex Media Scanner".format(os.path.expandvars(cfg['env']['LD_LIBRARY_PATH'])))
 
     if not found:
         print("Scanned directory '{0}' not found in Plex library".format(
