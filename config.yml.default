@@ -49,8 +49,9 @@ plex_rcs:
 #   log_file: c:\plex_rcs\rclone.log
 #   env:
 #     LD_LIBRARY_PATH: "%programfiles(x86)%\\Plex\\Plex Media Server"
-#     PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR: "%LOCALAPPDATA%\Plex Media Server
+#     PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR: "%LOCALAPPDATA%\\Plex Media Server
 
+### Windows Paths must use `\\` in place of `\` in the path or it won't work properly
 ### media_root is the drive letter where your rclone mount is mounted.
 ### log_file is the same value that you set in your rclone mount i.e --log-file=c:\plex_rcs\rclone.log
 ### If you moved your plex appdata folder, then change PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR to where you put it. i.e  PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR: "d:\Plex Media Server"
