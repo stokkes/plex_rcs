@@ -1,0 +1,17 @@
+[Unit]
+Description=plex_rcs
+Requires=plex_rcs.service
+After=plex_rcs.service
+RequiresMountsFor=/mnt/media
+
+[Service]
+User=1000
+Group=1000
+Type=simple
+ExecStart=/opt/plex_rcs/plex_rcs.py
+TimeoutStopSec=20
+KillMode=process
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
