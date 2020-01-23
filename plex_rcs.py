@@ -107,8 +107,8 @@ def tailf(logfile):
                     r"^.*\s(\d+:\d+:\d+)\s.*\s:\s.*\:\sinvalidating directory cache", r'\1', line)
 
                 if timeCurr != timePrev:
-                    print("Detected directory cache expiration: {0}".format(os.path.dirname(f)))
-                    scan(os.path.dirname(f))
+                    print("Detected directory cache expiration: {0}".format(f))
+                    scan(f)
                     timePrev = timeCurr
 
 def find_log():
@@ -120,7 +120,7 @@ def find_log():
     else:
         lf = cfg['log_file']
         if not os.path.isfile(lf):
-            print("Log file '/var/log/syslog' does not exist.".format(args.config))
+            print("Log file {0} does not exist.".format(lf))
             sys.exit(1)
 
     return lf
